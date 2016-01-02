@@ -2,13 +2,17 @@ package com.mygdx.game.gamestart;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.mygdx.game.mainmenu.MainMenuScreen;
 
@@ -26,16 +30,7 @@ public class GameStartScreen extends ScreenAdapter {
     private float backgroundCurrentLocation = 0;
     private float backgroundMoveSpeed = -0.5f;
 
-    public  enum PlayerStatus{
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        FIRE,
-        IDLE,
-        ALIVE,
-        DESTROYED
-    }
+
     public GameStartScreen(Game game, MainMenuScreen.Point selectedPlayerType) {
         this.game = game;
         stage = new Stage(new StretchViewport(240, 320));
@@ -62,14 +57,65 @@ public class GameStartScreen extends ScreenAdapter {
             }
         };
 
-        Actor playerActor = new Actor() {
-            @Override
-            public void draw(Batch batch, float parentAlpha) {
-                batch.draw(playerTextureRegion[0][0], playerPosX, playerPosY);
-            }
-        };
+        final PlayerActor playerActor = new PlayerActor(playerTextureRegion[0], playerPosX, playerPosY);
         stage.addActor(backgroundActor);
         stage.addActor(playerActor);
+
+        stage.addListener(new InputListener(){
+            private ObjectSet<PlayerActor.Status> playerStatusSet = playerActor.getStatusSet();
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+
+                if (keycode == Input.Keys.UP) {
+                    playerStatusSet.add(PlayerActor.Status.UP);
+                }
+                if (keycode == Input.Keys.DOWN) {
+                    playerStatusSet.add(PlayerActor.Status.DOWN);
+                }
+                if (keycode == Input.Keys.LEFT) {
+                    playerStatusSet.add(PlayerActor.Status.LEFT);
+                }
+                if (keycode == Input.Keys.RIGHT) {
+                    playerStatusSet.add(PlayerActor.Status.RIGHT);
+                }
+                if (keycode == Input.Keys.SPACE) { // fire
+                    playerStatusSet.add(PlayerActor.Status.FIRE);
+                }
+                if (keycode == Input.Keys.A) {  // bomb
+
+                }
+                return true;
+            }
+
+            @Override
+            public boolean keyUp(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.UP) {
+                    playerStatusSet.remove(PlayerActor.Status.UP);
+                }
+                if (keycode == Input.Keys.DOWN) {
+                    playerStatusSet.remove(PlayerActor.Status.DOWN);
+                }
+                if (keycode == Input.Keys.LEFT) {
+                    playerStatusSet.remove(PlayerActor.Status.LEFT);
+                }
+                if (keycode == Input.Keys.RIGHT) {
+                    playerStatusSet.remove(PlayerActor.Status.RIGHT);
+                }
+                if (keycode == Input.Keys.SPACE) { // fire
+                    playerStatusSet.remove(PlayerActor.Status.FIRE);
+                }
+                if (keycode == Input.Keys.A) {  // bomb
+
+                }
+                return true;
+            }
+
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                System.out.println("touch down event triggered");
+                return true;
+            }
+        });
     }
 
 

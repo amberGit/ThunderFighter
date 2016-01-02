@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.mygdx.game.ThunderFighter;
 import com.mygdx.game.gamestart.GameStartScreen;
+import com.mygdx.game.gamestart.util.BlastUtil;
 
 
 /**
@@ -122,6 +123,9 @@ public class MainMenuScreen extends ScreenAdapter {
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
+        if (BlastUtil.update()) {
+            System.out.println("Blast texture load complete");
+        }
         if (isOpenSelectStage) {
             selectPlayerStage.act();
             selectPlayerStage.draw();
