@@ -124,7 +124,7 @@ public class MainMenuScreen extends ScreenAdapter {
         stage.act(delta);
         stage.draw();
         if (BlastUtil.update()) {
-            System.out.println("Blast texture load complete");
+
         }
         if (isOpenSelectStage) {
             selectPlayerStage.act();

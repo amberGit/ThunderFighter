@@ -57,7 +57,7 @@ public class GameStartScreen extends ScreenAdapter {
             }
         };
 
-        final PlayerActor playerActor = new PlayerActor(playerTextureRegion[0], playerPosX, playerPosY);
+        final PlayerActor playerActor = new PlayerActor(playerTextureRegion[0], playerPosX, playerPosY, "player");
         stage.addActor(backgroundActor);
         stage.addActor(playerActor);
 
@@ -104,7 +104,20 @@ public class GameStartScreen extends ScreenAdapter {
                 if (keycode == Input.Keys.SPACE) { // fire
                     playerStatusSet.remove(PlayerActor.Status.FIRE);
                 }
-                if (keycode == Input.Keys.A) {  // bomb
+                if (keycode == Input.Keys.A) {  // suicide test for BlastUtil's blast animation
+                    playerStatusSet.remove(PlayerActor.Status.ALIVE);
+                }
+                if (keycode == Input.Keys.Q) {
+                    playerStatusSet.add(PlayerActor.Status.ALIVE);
+                    boolean hasPlayer = false;
+                    for (Actor actor : stage.getActors()) {
+                        if (playerActor.getName().equals(actor.getName())) {
+                            hasPlayer = true;
+                            break;
+                        }
+                    }
+                    if (!hasPlayer)
+                        stage.addActor(playerActor);
 
                 }
                 return true;

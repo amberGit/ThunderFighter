@@ -42,6 +42,7 @@ public class BlastUtil {
         int rand = MathUtils.random(1, 8);
 
         while (true) {
+            System.out.println("rand:" + rand);
             if (rand < 3) {
                 int i = 1;
                 for (; i < 5; i++) {
@@ -50,8 +51,8 @@ public class BlastUtil {
                 }
                 if (i == 5) {
                     TextureRegion[] blastRegion = new TextureRegion[4];
-                    for ( int j = blastRegion.length - 1; j > 0; j--) {
-                        blastRegion[j] = new TextureRegion((Texture)assetManager.get(assetKeyPrefix + rand + j + assetKeySuffix));
+                    for ( int j = 1; j < 5; j++) {
+                        blastRegion[j - 1] = new TextureRegion((Texture)assetManager.get(assetKeyPrefix + rand + j + assetKeySuffix));
                     }
                     return new Animation(blastFrameDuration, new Array<>(blastRegion), Animation.PlayMode.NORMAL);
                 }

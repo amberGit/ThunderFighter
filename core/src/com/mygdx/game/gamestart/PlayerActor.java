@@ -19,13 +19,13 @@ public class PlayerActor extends Actor {
     private Animation destroyAnimation;
     private float velocity = 1;
     private ObjectSet<Status> statusSet;
-    public PlayerActor(TextureRegion[] playerTextureRegion, float x, float y) {
+    public PlayerActor(TextureRegion[] playerTextureRegion, float x, float y, String name) {
         this.setX(x);
         this.setY(y);
         this.playerTextureRegion = playerTextureRegion;
+        this.setName(name);
         statusSet = new ObjectSet<>();
         statusSet.add(Status.ALIVE);
-        statusSet.add(Status.IDLE);
         destroyAnimation = BlastUtil.getRandomBlastAnimation();
     }
 
@@ -35,7 +35,6 @@ public class PlayerActor extends Actor {
         LEFT,
         RIGHT,
         FIRE,
-        IDLE,
         ALIVE,
     }
 
@@ -74,8 +73,12 @@ public class PlayerActor extends Actor {
     }
 
     private void removeOnDead() {
-        if (!statusSet.contains(Status.ALIVE) && destroyAnimation.isAnimationFinished(destroyStateTime))
+        if (!statusSet.contains(Status.ALIVE) && destroyAnimation.isAnimationFinished(destroyStateTime)) {// while player has dead do something on it
+            System.out.println("player has been destroyed");
+            destroyStateTime = 0f;
+            destroyAnimation = BlastUtil.getRandomBlastAnimation();
             this.remove();
+        }
     }
     private void handlePlayerOperations() {
         if (!statusSet.contains(Status.ALIVE)) return;
@@ -96,12 +99,12 @@ public class PlayerActor extends Actor {
     }
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        removeOnDead();
         handlePlayerOperations();
         batch.draw(getTextureByStatus(), getX(), getY());
         if (isFiring()) {
             batch.draw(playerTextureRegion[4], getX(), getY());
         }
+        removeOnDead();
     }
 
 }
