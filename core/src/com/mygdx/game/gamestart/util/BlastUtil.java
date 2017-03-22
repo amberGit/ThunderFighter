@@ -11,16 +11,13 @@ import com.badlogic.gdx.utils.Array;
  * Created by John on 2016/1/1.
  */
 public class BlastUtil {
-    private static AssetManager assetManager;
     private static final String assetKeyPrefix = "gameStart/blast/Blast";
     private static final String assetKeySuffix = ".png";
     private static final int blastTotalFrames = 6;
     private static final float blastFrameDuration = 0.2f;
 
-    public static void setAssetManager(AssetManager assetManager) {
-        BlastUtil.assetManager = assetManager;
-    }
-    public static void load() {
+
+    public static void load(AssetManager assetManager) {
         for (int i = 3; i < 9; i++) {
             assetManager.load(assetKeyPrefix + i + assetKeySuffix, Texture.class);
         }
@@ -31,11 +28,8 @@ public class BlastUtil {
         }
     }
 
-    public static boolean update() {
-        return assetManager.update();
-    }
 
-    public static Animation getRandomBlastAnimation() throws NullPointerException {
+    public static Animation<TextureRegion> getRandomBlastAnimation(AssetManager assetManager) throws NullPointerException {
         if (assetManager == null) {
             throw new NullPointerException("Asset manager for blast is null");
         }
@@ -54,12 +48,12 @@ public class BlastUtil {
                     for ( int j = 1; j < 5; j++) {
                         blastRegion[j - 1] = new TextureRegion((Texture)assetManager.get(assetKeyPrefix + rand + j + assetKeySuffix));
                     }
-                    return new Animation(blastFrameDuration, new Array<>(blastRegion), Animation.PlayMode.NORMAL);
+                    return new Animation<>(blastFrameDuration, new Array<>(blastRegion), Animation.PlayMode.NORMAL);
                 }
             } else if (assetManager.isLoaded(assetKeyPrefix + rand + assetKeySuffix)) {
                 Texture randBlastTexture = assetManager.get(assetKeyPrefix + rand + assetKeySuffix);
                 TextureRegion[][]  blastRegion = TextureRegion.split(randBlastTexture, randBlastTexture.getWidth() / blastTotalFrames, randBlastTexture.getHeight());
-                return new Animation(blastFrameDuration, new Array<>(blastRegion[0]), Animation.PlayMode.NORMAL);
+                return new Animation<>(blastFrameDuration, new Array<>(blastRegion[0]), Animation.PlayMode.NORMAL);
             }
             rand = MathUtils.random(1, 8);
         }

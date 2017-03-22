@@ -28,12 +28,19 @@ public class ThunderFighter extends Game {
         helpScreen = new HelpScreen(this, mainMenuScreen);
         this.setScreen(mainMenuScreen);
         assetManager = new AssetManager();
-        BlastUtil.setAssetManager(assetManager);
-        BlastUtil.load();
+        BlastUtil.load(assetManager);
     }
 
     @Override
     public void resume() {
         super.resume();
+        if (assetManager == null) {
+            assetManager = new AssetManager();
+            BlastUtil.load(assetManager);
+        }
+    }
+
+    public AssetManager getAssetManager() {
+        return assetManager;
     }
 }

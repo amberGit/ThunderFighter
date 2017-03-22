@@ -1,13 +1,11 @@
 package com.mygdx.game.gamestart;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.mygdx.game.gamestart.util.BlastUtil;
 
 /**
  * Created by John on 2015/12/31.
@@ -16,20 +14,20 @@ public class PlayerActor extends Actor {
 
     private TextureRegion[] playerTextureRegion ;
     private float destroyStateTime;
-    private Animation destroyAnimation;
+    private Animation<TextureRegion> destroyAnimation;
     private float velocity = 1;
     private ObjectSet<Status> statusSet;
-    public PlayerActor(TextureRegion[] playerTextureRegion, float x, float y, String name) {
+    public PlayerActor(TextureRegion[] playerTextureRegion, float x, float y, String name, Animation<TextureRegion> destroyAnimation) {
         this.setX(x);
         this.setY(y);
         this.playerTextureRegion = playerTextureRegion;
         this.setName(name);
         statusSet = new ObjectSet<>();
         statusSet.add(Status.ALIVE);
-        destroyAnimation = BlastUtil.getRandomBlastAnimation();
+        this.destroyAnimation = destroyAnimation;
     }
 
-    public  enum Status{
+    public enum Status{
         UP,
         DOWN,
         LEFT,
@@ -76,7 +74,6 @@ public class PlayerActor extends Actor {
         if (!statusSet.contains(Status.ALIVE) && destroyAnimation.isAnimationFinished(destroyStateTime)) {// while player has dead do something on it
             System.out.println("player has been destroyed");
             destroyStateTime = 0f;
-            destroyAnimation = BlastUtil.getRandomBlastAnimation();
             this.remove();
         }
     }

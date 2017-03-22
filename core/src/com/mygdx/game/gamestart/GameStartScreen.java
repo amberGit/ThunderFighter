@@ -12,9 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.mygdx.game.ThunderFighter;
+import com.mygdx.game.gamestart.util.BlastUtil;
 import com.mygdx.game.mainmenu.MainMenuScreen;
+
+import java.util.Iterator;
 
 /**
  * Created by John on 2015/12/6.
@@ -24,14 +29,14 @@ public class GameStartScreen extends ScreenAdapter {
     private static final int playerStatusTotalCount = 6;
     private TextureRegion[][] playerTextureRegion;
 
-    private Game game;
+    private final ThunderFighter game;
     private Stage stage;
     private float playerPosX = 100, playerPosY = 0;
     private float backgroundCurrentLocation = 0;
     private float backgroundMoveSpeed = -0.5f;
 
 
-    public GameStartScreen(Game game, MainMenuScreen.Point selectedPlayerType) {
+    public GameStartScreen(ThunderFighter game, MainMenuScreen.Point selectedPlayerType) {
         this.game = game;
         stage = new Stage(new StretchViewport(240, 320));
         init(selectedPlayerType);
@@ -57,7 +62,7 @@ public class GameStartScreen extends ScreenAdapter {
             }
         };
 
-        final PlayerActor playerActor = new PlayerActor(playerTextureRegion[0], playerPosX, playerPosY, "player");
+        final PlayerActor playerActor = new PlayerActor(playerTextureRegion[0], playerPosX, playerPosY, "player", BlastUtil.getRandomBlastAnimation(game.getAssetManager()));
         stage.addActor(backgroundActor);
         stage.addActor(playerActor);
 
@@ -82,7 +87,7 @@ public class GameStartScreen extends ScreenAdapter {
                     playerStatusSet.add(PlayerActor.Status.FIRE);
                 }
                 if (keycode == Input.Keys.A) {  // bomb
-
+                    Gdx.app.log("key-down", "press key A");
                 }
                 return true;
             }
@@ -110,7 +115,9 @@ public class GameStartScreen extends ScreenAdapter {
                 if (keycode == Input.Keys.Q) {
                     playerStatusSet.add(PlayerActor.Status.ALIVE);
                     boolean hasPlayer = false;
-                    for (Actor actor : stage.getActors()) {
+
+                    for (Array.ArrayIterator<Actor> iterator = new Array.ArrayIterator<>(stage.getActors()); iterator.hasNext(); ) {
+                        Actor actor = iterator.next();
                         if (playerActor.getName().equals(actor.getName())) {
                             hasPlayer = true;
                             break;
@@ -133,8 +140,7 @@ public class GameStartScreen extends ScreenAdapter {
 
 
     private Texture getSelectPlayerTexture(final MainMenuScreen.Point selectedPlayerType) {
-        Texture playerTexture = new Texture("gameStart/player/Player" + (selectedPlayerType.ordinal() + 1) + ".png");
-        return playerTexture;
+        return new Texture("gameStart/player/Player" + (selectedPlayerType.ordinal() + 1) + ".png");
     }
     @Override
     public void render(float delta) {

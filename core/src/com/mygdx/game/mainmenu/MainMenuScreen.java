@@ -1,10 +1,10 @@
 package com.mygdx.game.mainmenu;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -18,19 +18,18 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.mygdx.game.ThunderFighter;
 import com.mygdx.game.gamestart.GameStartScreen;
-import com.mygdx.game.gamestart.util.BlastUtil;
 
 
 /**
  * Created by John on 2015/12/4.
  */
 public class MainMenuScreen extends ScreenAdapter {
-    private Game game;
+    private ThunderFighter game;
     private Stage stage;
     private Stage selectPlayerStage;
 
     private float stateTime;
-    private Point currentSelectCursorLocation;
+    private Point currentCursorLocation;
     private boolean hasCreateSelectStage = false;
     private boolean isOpenSelectStage = false;
 
@@ -59,7 +58,7 @@ public class MainMenuScreen extends ScreenAdapter {
         ENTER,
         ESCAPE
     }
-    public MainMenuScreen(Game game) {
+    public MainMenuScreen(ThunderFighter game) {
         this.game = game;
         stage = new Stage(new StretchViewport(240, 320)); // FIXME set width and height
         selectPlayerStage = new Stage(new StretchViewport(240, 320));
@@ -123,8 +122,11 @@ public class MainMenuScreen extends ScreenAdapter {
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
-        if (BlastUtil.update()) {
-
+        AssetManager manager = game.getAssetManager();
+        if (manager != null) {
+            if (manager.update()) {
+//                Gdx.app.log("assets-info", "load all assets done");
+            }
         }
         if (isOpenSelectStage) {
             selectPlayerStage.act();
@@ -150,10 +152,10 @@ public class MainMenuScreen extends ScreenAdapter {
         TextureRegion[] selectRegion = new TextureRegion[2];
         selectRegion[0] = new TextureRegion(select1Tex);
         selectRegion[1] = new TextureRegion(select2Tex);
-        final Animation selectCursorAnimation = new Animation(0.5f, new Array<TextureRegion>(selectRegion), Animation.PlayMode.LOOP);
+        final Animation<TextureRegion> selectCursorAnimation = new Animation<>(0.5f, new Array<>(selectRegion), Animation.PlayMode.LOOP);
 
         final float x = 8, y = 80;
-        currentSelectCursorLocation = Point.FIRST;
+        currentCursorLocation = Point.FIRST;
 
         Actor player1Actor = new Actor() {
             @Override
@@ -182,7 +184,7 @@ public class MainMenuScreen extends ScreenAdapter {
             @Override
             public void draw(Batch batch, float parentAlpha) {
                 stateTime += Gdx.graphics.getDeltaTime();
-                batch.draw(selectCursorAnimation.getKeyFrame(stateTime), currentSelectCursorLocation.x, currentSelectCursorLocation.y);
+                batch.draw(selectCursorAnimation.getKeyFrame(stateTime), currentCursorLocation.x, currentCursorLocation.y);
             }
         };
         // init first select player frame
@@ -207,7 +209,7 @@ public class MainMenuScreen extends ScreenAdapter {
                 }
                 if (keycode == Input.Keys.ENTER) {
                     // jump to game start screen
-                    game.setScreen(new GameStartScreen(game, currentSelectCursorLocation));
+                    game.setScreen(new GameStartScreen(game, currentCursorLocation));
                 }
                 if (keycode == Input.Keys.ESCAPE) {
                     // return to main menu stage
@@ -245,8 +247,8 @@ public class MainMenuScreen extends ScreenAdapter {
         } else if (MenuItem.GAME_ACHIEVE == itemArray[selectedIndex]) {
 
         } else if (MenuItem.GAME_HELP == itemArray[selectedIndex]) {
-            if (game instanceof ThunderFighter) {
-                Screen helpScreen =  ((ThunderFighter) game).getHelpScreen();
+            if (game != null) {
+                Screen helpScreen =  game.getHelpScreen();
                 game.setScreen(helpScreen);
                 this.dispose();
             }
@@ -256,7 +258,7 @@ public class MainMenuScreen extends ScreenAdapter {
     }
     private int getSelectedIndex() {
         int selectedIndex = -1;
-        for (Actor actor: stage.getActors()) {
+        for (Actor actor: new Array.ArrayIterator<>(stage.getActors())) {
             if (actor instanceof  MenuItemActor && actor.isVisible()) {
                 MenuItem currentMenuItem = MenuItem.valueOf(actor.getName());
                 return currentMenuItem.ordinal();
@@ -265,11 +267,11 @@ public class MainMenuScreen extends ScreenAdapter {
         return  selectedIndex;
     }
     private int getCurrentSelectPlayer() {
-        return currentSelectCursorLocation.ordinal();
+        return currentCursorLocation.ordinal();
     }
 
     private void resetSelectedItem() {
-        for (Actor actor : stage.getActors()) {
+        for (Actor actor : new Array.ArrayIterator<>(stage.getActors())) {
             if (actor instanceof  MenuItemActor ) {
                 actor.setVisible(false);
                 if (MenuItem.valueOf(actor.getName()).ordinal() == 0) {
@@ -291,9 +293,10 @@ public class MainMenuScreen extends ScreenAdapter {
         }
 
         // set current select cursor location
-        currentSelectCursorLocation = Point.values()[currentSelectPlayer];
+        currentCursorLocation = Point.values()[currentSelectPlayer];
         // set current select player visible and prev select player invisible
-        for (Actor playerActor: selectPlayerStage.getActors()) {
+        for (Array.ArrayIterator<Actor> it = new Array.ArrayIterator<>(selectPlayerStage.getActors()); it.hasNext();) {
+            Actor playerActor = it.next();
             if (playerActor.getName()!= null) {
                 if (playerActor.getName().equals(Point.values()[prevSelectPlayer].name())) {
                     playerActor.setVisible(false);
@@ -316,7 +319,8 @@ public class MainMenuScreen extends ScreenAdapter {
         else if (comm == Command.NEXT)
             nextSelectedIndex = (currentSelectedIndex + 1) % length;
 
-        for (Actor actor : stage.getActors()) {
+        for (Array.ArrayIterator<Actor> iterator = new Array.ArrayIterator<>(stage.getActors()); iterator.hasNext();) {
+            Actor actor = iterator.next();
             if (actor instanceof  MenuItemActor ) {
                 if (MenuItem.valueOf(actor.getName()) == MenuItem.values()[nextSelectedIndex])
                     actor.setVisible(true);
